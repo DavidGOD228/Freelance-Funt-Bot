@@ -1,6 +1,5 @@
 const TelegramBot = require('node-telegram-bot-api');
 
-// replace the value below with the Telegram token you receive from @BotFather
 const token = '1017572583:AAGP1-aps0B2kz1YRkNPLwHDhHQiMPDYBs4';
 
 const bot = new TelegramBot(token, { polling: true });
@@ -30,6 +29,6 @@ bot.on('document', msg => {
   const chatId = msg.chat.id;
   bot.sendMessage(
     chatId,
-    'What are u doing? Plese stop it if I call the POLICE!!!'
+    'What are u doing? Plese stop it or I call the POLICE!!!'
   );
 });
