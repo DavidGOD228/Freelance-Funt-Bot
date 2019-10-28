@@ -1,33 +1,34 @@
 var https = require("https");
-const axios = require("axios");
+const utils = require("util");
 
-const freelancehuntToken = "7b9052f154825826c64733576e63b18746764e38";
-// Authorization: `Bearer ${freelancehuntToken}`
+module.exports = {
+  request: function request(options) {
+    return new Promise(function(resolve, reject) {
+      https
+        .request(options, function(res) {
+          var chunks = [];
 
-var options = {
-  method: "GET",
-  hostname: "api.freelancehunt.com",
-  path: "/v2/my/feed",
-  headers: {
-    Authorization: "Bearer " + freelancehuntToken
+          res.on("data", function(chunk) {
+            chunks.push(chunk);
+          });
+
+          res.on("end", function(chunk) {
+            let body = Buffer.concat(chunks);
+            let jsonB = JSON.parse(body.toString());
+            let data = jsonB.data;
+
+            resolve(jsonB.data);
+          });
+
+          res.on("error", function(error) {
+            console.error("Error: ", error);
+          });
+        })
+        .end();
+    });
   }
 };
 
-var req = https.request(options, function(res) {
-  var chunks = [];
-
-  res.on("data", function(chunk) {
-    chunks.push(chunk);
-  });
-
-  res.on("end", function(chunk) {
-    var body = Buffer.concat(chunks);
-    console.log(body.toString());
-  });
-
-  res.on("error", function(error) {
-    console.error(error);
-  });
-});
-
-req.end();
+// (async () => {
+//   console.log(await request(options));
+// })();
