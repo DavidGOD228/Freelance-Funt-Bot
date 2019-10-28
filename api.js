@@ -6,7 +6,7 @@ const freelancehuntToken = "7b9052f154825826c64733576e63b18746764e38";
 
 var options = {
   method: "GET",
-  hostname: "https://api.freelancehunt.com",
+  hostname: "api.freelancehunt.com",
   path: "/v2/my/feed",
   headers: {
     Authorization: "Bearer " + freelancehuntToken
