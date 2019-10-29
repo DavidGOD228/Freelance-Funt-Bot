@@ -1,5 +1,29 @@
 var https = require("https");
 const utils = require("util");
+var firebase = require("firebase");
+require("firebase/auth");
+require("firebase/database");
+
+var app = firebase.initializeApp({
+  apiKey: "AIzaSyCaF3bVo1woHqS8iXPyBs7_phx6T5TEkHM",
+  authDomain: "freelancehuntbot.firebaseapp.com",
+  databaseURL: "https://freelancehuntbot.firebaseio.com",
+  projectId: "freelancehuntbot",
+  storageBucket: "freelancehuntbot.appspot.com",
+  messagingSenderId: "1047395214980",
+  appId: "1:1047395214980:web:4b0cc9fb56a232b3ef04d1"
+});
+
+let db = firebase.firestore();
+
+// (async () => {
+//   let userData = await db
+//     .collection("users")
+//     .doc("820f011bb5c40e0ac23b113c82e3ee30e375e887")
+//     .get()
+//     .then(el => el.data());
+//   console.log(userData);
+// })();
 
 module.exports = {
   request: function request(options) {
@@ -26,9 +50,14 @@ module.exports = {
         })
         .end();
     });
+  },
+  db: db,
+  getDBuserData: async apiKey => {
+    let userData = await db
+      .collection("users")
+      .doc("820f011bb5c40e0ac23b113c82e3ee30e375e887")
+      .get()
+      .then(el => el.data());
+    return userData;
   }
 };
-
-// (async () => {
-//   console.log(await request(options));
-// })();
