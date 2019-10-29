@@ -5,6 +5,7 @@ const api = require("./api");
 
 var isReceived = false;
 var freelancehuntToken = "undefined";
+const updateRate = 300000;
 
 async function GetFeed(Token) {
   let requestOptions = {
@@ -16,8 +17,8 @@ async function GetFeed(Token) {
     }
   };
 
-  var Response = await api.request(requestOptions);
-  return Response;
+  var response = await api.request(requestOptions);
+  return response;
 }
 
 var options = {
@@ -43,36 +44,30 @@ bot.on("callback_query", function(msg) {
     isReceived = true;
     bot.sendMessage(msg.from.id, "Receiving job offers was started!\n\n");
 
-    setTimeout(async () => {
+    setInterval(async () => {
       var Feed = await GetFeed(freelancehuntToken);
       let userData = await api.getDBuserData(freelancehuntToken);
-      console.log("BEFORE LOOP");
+      let newIdxs = [];
 
       for (let i = 0; i < 5; i++) {
-        console.log("INSIDE LOOP");
-        var feedBlocks = Feed[i].attributes.message.match(
+        var orderLink = Feed[i].attributes.message.match(
           /(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?/
-        );
-        console.log("userData.shownMessagesIdx", userData.shownMessagesIds);
-        console.log("userData.shownMessagesIdx", Feed[i].id);
-        console.log(
-          "RES: ",
-          userData.shownMessagesIds.findIndex(el => el === Feed[i].id)
-        );
-        if (userData.shownMessagesIds.findIndex(el => el === Feed[i].id)) {
-          console.log("INSIDE IF");
-          bot.sendMessage(msg.from.id, feedBlocks[i]);
-          console.log("HERE");
-          api.db
-            .collection("users")
-            .doc(freelancehuntToken)
-            .update({
-              shownMessagesIds: [...userData.shownMessagesIds, Feed[i].id]
-            });
-          console.log("DB DONE");
+        )[0];
+
+        const alreadyExists =
+          userData.shownMessagesIds.findIndex(el => el === Feed[i].id) !== -1;
+        if (!alreadyExists) {
+          bot.sendMessage(msg.from.id, orderLink);
+          newIdxs.push(Feed[i].id);
         }
       }
-    }, 1); //300000
+      api.db
+        .collection("users")
+        .doc(freelancehuntToken)
+        .update({
+          shownMessagesIds: [...userData.shownMessagesIds, ...newIdxs]
+        });
+    }, updateRate);
   } else if (answer == "3") {
     bot.sendMessage(msg.from.id, "Receiving job offers was stopped!");
     isReceived = false;
