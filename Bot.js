@@ -1,11 +1,11 @@
 const TelegramBot = require('node-telegram-bot-api');
-const token = '1028161792:AAGUEFr2m8uGSX_2_rAZZLr5V-N4z42h7Gg';
+const token = '933813489:AAFRugkYM0Le9jGW74Upt6SxFgwCS7TP9HU';
 const bot = new TelegramBot(token, { polling: true });
 const api = require('./api');
 
 var isReceived = false;
 var freelancehuntToken = 'undefined';
-const updateRate = 300000;
+const updateRate = 60000;
 
 async function GetFeed(Token) {
   let requestOptions = {
@@ -40,6 +40,10 @@ bot.on('callback_query', function(msg) {
     bot.onText(/[a-z0-9_-]{40}/, function(msg, match) {
       freelancehuntToken = msg.text;
     });
+
+    (async () => {
+      console.log('users+ ', await api.getDBuserData(freelancehuntToken));
+    })();
   } else if (answer == '2') {
     isReceived = true;
     bot.sendMessage(msg.from.id, 'Receiving job offers was started!\n\n');
@@ -62,6 +66,7 @@ bot.on('callback_query', function(msg) {
             newIdxs.push(Feed[i].id);
           }
         }
+
         api.db
           .collection('users')
           .doc(freelancehuntToken)
