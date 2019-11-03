@@ -16,6 +16,15 @@ var app = firebase.initializeApp({
 
 let db = firebase.firestore();
 
+// (async () => {
+//   let userData = await db
+//     .collection("users")
+//     .doc("820f011bb5c40e0ac23b113c82e3ee30e375e887")
+//     .get()
+//     .then(el => el.data());
+//   console.log(userData);
+// })();
+
 module.exports = {
   request: function request(options) {
     return new Promise(function(resolve, reject) {
@@ -42,20 +51,13 @@ module.exports = {
         .end();
     });
   },
-  db,
+  db: db,
   getDBuserData: async apiKey => {
     let userData = await db
       .collection('users')
-      .doc(apiKey)
+      .doc('820f011bb5c40e0ac23b113c82e3ee30e375e887')
       .get()
       .then(el => el.data());
-    return userData;
-  },
-  createDBuser: async apiKey => {
-    let userData = await db
-      .collection('users')
-      .doc(apiKey)
-      .set({ shownMessagesIds: [] });
     return userData;
   }
 };

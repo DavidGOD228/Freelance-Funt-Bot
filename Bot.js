@@ -5,7 +5,7 @@ const api = require('./api');
 
 var isReceived = false;
 var freelancehuntToken = 'undefined';
-const updateRate = 60000;
+const updateRate = 300000;
 
 async function GetFeed(Token) {
   let requestOptions = {
@@ -40,10 +40,6 @@ bot.on('callback_query', function(msg) {
     bot.onText(/[a-z0-9_-]{40}/, function(msg, match) {
       freelancehuntToken = msg.text;
     });
-
-    (async () => {
-      console.log('users+ ', await api.getDBuserData(freelancehuntToken));
-    })();
   } else if (answer == '2') {
     isReceived = true;
     bot.sendMessage(msg.from.id, 'Receiving job offers was started!\n\n');
@@ -66,7 +62,6 @@ bot.on('callback_query', function(msg) {
             newIdxs.push(Feed[i].id);
           }
         }
-
         api.db
           .collection('users')
           .doc(freelancehuntToken)
