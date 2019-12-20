@@ -15,16 +15,6 @@ var app = firebase.initializeApp({
 });
 
 let db = firebase.firestore();
-
-// (async () => {
-//   let userData = await db
-//     .collection("users")
-//     .doc("820f011bb5c40e0ac23b113c82e3ee30e375e887")
-//     .get()
-//     .then(el => el.data());
-//   console.log(userData);
-// })();
-
 module.exports = {
   request: function request(options) {
     return new Promise(function(resolve, reject) {
