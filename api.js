@@ -4,16 +4,6 @@ var firebase = require('firebase');
 require('firebase/auth');
 require('firebase/database');
 
-var app = firebase.initializeApp({
-  apiKey: 'api_key',
-  authDomain: 'freelancehuntbot.firebaseapp.com',
-  databaseURL: 'https://freelancehuntbot.firebaseio.com',
-  projectId: 'freelancehuntbot',
-  storageBucket: 'freelancehuntbot.appspot.com',
-  messagingSenderId: '1047395214980',
-  appId: '1:1047395214980:web:4b0cc9fb56a232b3ef04d1'
-});
-
 let db = firebase.firestore();
 module.exports = {
   request: function request(options) {
