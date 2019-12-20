@@ -5,7 +5,7 @@ require('firebase/auth');
 require('firebase/database');
 
 var app = firebase.initializeApp({
-  apiKey: 'AIzaSyCaF3bVo1woHqS8iXPyBs7_phx6T5TEkHM',
+  apiKey: 'api_key',
   authDomain: 'freelancehuntbot.firebaseapp.com',
   databaseURL: 'https://freelancehuntbot.firebaseio.com',
   projectId: 'freelancehuntbot',
