@@ -5,7 +5,7 @@ const api = require('./api');
 
 var isReceived = false;
 var freelancehuntToken = 'undefined';
-const updateRate = 3000;
+const updateRate = 300000;
 
 async function GetFeed(Token) {
   let requestOptions = {
@@ -51,49 +51,59 @@ bot.on('callback_query', function(msg) {
   var answer = msg.data;
   if (answer == '1') {
     bot.sendMessage(msg.from.id, 'Write your API key: ');
-    bot.onText(/[a-z0-9_-]{40}/, function(msg, match) {
+    bot.onText(/[a-z0-9_-]{40}/, async function(msg, match) {
       freelancehuntToken = msg.text;
+      var UserList = await api.getUsers();
+      if (
+        UserList.findIndex(
+          el => el.freelancehuntToken === freelancehuntToken
+        ) == -1
+      ) {
+        api.addUsers(freelancehuntToken);
+      }
     });
   } else if (answer == '2') {
-	if(freelancehuntToken != 'undefined')
-    {bot.sendMessage(msg.from.id, 'Receiving job offers was started!\n\n');
-    isReceived = true;
+    if (freelancehuntToken != 'undefined') {
+      bot.sendMessage(msg.from.id, 'Receiving job offers was started!\n\n');
+      isReceived = true;
 
-    setInterval(async () => {
-		try {
+      setInterval(async () => {
+        try {
+          if (isReceived) {
+            var Feed = await GetFeed(freelancehuntToken);
+            var Messages = await GetMessages(freelancehuntToken);
 
-      if (isReceived) {
-        var Feed = await GetFeed(freelancehuntToken);
-		var Messages = await GetMessages(freelancehuntToken);
-        let userData = await api.getDBuserData(freelancehuntToken);
-        let newIdxs = [];
-console.log(userData);
-        for (let i = 0; i < 5; i++) {
-          var orderLink = Feed[i].attributes.message.match(
-            /(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?/
-          )[0];
+            let OfferData = await api.getDBuserOffer(freelancehuntToken);
+            let MessageData = await api.getDBuserMessage(freelancehuntToken);
+            for (let i = 0; i < 5; i++) {
+              var orderLink = Feed[i].attributes.message.match(
+                /(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?/
+              )[0];
+              var orderMessage = Messages[i].attributes.subject;
 
-          const alreadyExists =
-            userData.shownMessagesIds.findIndex(el => el === Feed[i].id) !== -1;
-          if (!alreadyExists) {
-            bot.sendMessage(msg.from.id, orderLink);
-            newIdxs.push(Feed[i].id);
+              const alreadyExistsOffer =
+                OfferData.findIndex(el => el.id === Feed[i].id) !== -1;
+              const alreadyExistsMessage =
+                MessageData.findIndex(el => el.id === Messages[i].id) !== -1;
+              if (!alreadyExistsOffer) {
+                api.addDBuserOffer(freelancehuntToken, orderLink, Feed[i].id);
+                bot.sendMessage(msg.from.id, orderLink);
+              }
+              if (!alreadyExistsMessage) {
+                api.addDBuserMessage(
+                  freelancehuntToken,
+                  orderMessage,
+                  Messages[i].id
+                );
+                bot.sendMessage(msg.from.id, '✉️Message: ' + orderMessage);
+              }
+            }
           }
+        } catch (error) {
+          console.error('Shit', error);
         }
-        api.db
-          .collection('users')
-          .doc(freelancehuntToken)
-          .update({
-            shownMessagesIds: [...userData.shownMessagesIds, ...newIdxs]
-          });
-		}}
-		catch(error) {
-  console.error(error);
-}
-		}
-    , updateRate);
-	}else
-		bot.sendMessage(msg.from.id, 'Freelance API is not defined!');
+      }, updateRate);
+    } else bot.sendMessage(msg.from.id, 'Freelance API is not defined!');
   } else if (answer == '3') {
     bot.sendMessage(msg.from.id, 'Receiving job offers was stopped!');
     isReceived = false;
