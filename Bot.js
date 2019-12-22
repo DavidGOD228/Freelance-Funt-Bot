@@ -1,17 +1,31 @@
 const TelegramBot = require('node-telegram-bot-api');
-const token = 'my_token';
+const token = '1028161792:AAGUEFr2m8uGSX_2_rAZZLr5V-N4z42h7Gg';
 const bot = new TelegramBot(token, { polling: true });
 const api = require('./api');
 
 var isReceived = false;
 var freelancehuntToken = 'undefined';
-const updateRate = 300000;
+const updateRate = 3000;
 
 async function GetFeed(Token) {
   let requestOptions = {
     method: 'GET',
     hostname: 'api.freelancehunt.com',
     path: '/v2/my/feed',
+    headers: {
+      Authorization: 'Bearer ' + Token
+    }
+  };
+
+  var response = await api.request(requestOptions);
+  return response;
+}
+
+async function GetMessages(Token) {
+  let requestOptions = {
+    method: 'GET',
+    hostname: 'api.freelancehunt.com',
+    path: '/v2/threads',
     headers: {
       Authorization: 'Bearer ' + Token
     }
@@ -41,15 +55,19 @@ bot.on('callback_query', function(msg) {
       freelancehuntToken = msg.text;
     });
   } else if (answer == '2') {
+	if(freelancehuntToken != 'undefined')
+    {bot.sendMessage(msg.from.id, 'Receiving job offers was started!\n\n');
     isReceived = true;
-    bot.sendMessage(msg.from.id, 'Receiving job offers was started!\n\n');
 
     setInterval(async () => {
+		try {
+
       if (isReceived) {
         var Feed = await GetFeed(freelancehuntToken);
+		var Messages = await GetMessages(freelancehuntToken);
         let userData = await api.getDBuserData(freelancehuntToken);
         let newIdxs = [];
-
+console.log(userData);
         for (let i = 0; i < 5; i++) {
           var orderLink = Feed[i].attributes.message.match(
             /(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?/
@@ -68,8 +86,14 @@ bot.on('callback_query', function(msg) {
           .update({
             shownMessagesIds: [...userData.shownMessagesIds, ...newIdxs]
           });
-      }
-    }, updateRate);
+		}}
+		catch(error) {
+  console.error(error);
+}
+		}
+    , updateRate);
+	}else
+		bot.sendMessage(msg.from.id, 'Freelance API is not defined!');
   } else if (answer == '3') {
     bot.sendMessage(msg.from.id, 'Receiving job offers was stopped!');
     isReceived = false;
