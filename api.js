@@ -4,27 +4,10 @@ var firebase = require('firebase');
 require('firebase/auth');
 require('firebase/database');
 
-var app = firebase.initializeApp({
-  apiKey: 'AIzaSyCy0s47WkBnaqXw-DjJsXF9Hne2AvLDsQY',
-  authDomain: 'freelancehunt-bot-d1d8e.firebaseapp.com',
-  databaseURL: 'https://freelancehunt-bot-d1d8e.firebaseio.com',
-  projectId: 'freelancehunt-bot-d1d8e',
-  storageBucket: 'freelancehunt-bot-d1d8e.appspot.com',
-  messagingSenderId: '326194914754',
-  appId: '1:326194914754:web:ad4f73c2ea7d5db900a25b'
-});
+var app = firebase.initializeApp({***});
 app.auth();
 
 let db = firebase.firestore();
-
-// (async () => {
-//   let userData = await db
-//     .collection("users")
-//     .doc("820f011bb5c40e0ac23b113c82e3ee30e375e887")
-//     .get()
-//     .then(el => el.data());
-//   console.log(userData);
-// })();
 
 module.exports = {
   request: function request(options) {
